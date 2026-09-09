@@ -17,7 +17,7 @@ const darkColors = {
     tint: '#19191B',
     qr: '#FFFFFF',
   },
-  connectButton: { background: '#0098EA', foreground: '#FFFFFF' },
+  connectButton: { background: '#1EAEFB', foreground: '#FFFFFF' },
 };
 
 const lightColors = {
@@ -28,7 +28,7 @@ const lightColors = {
     tint: '#F0F1F3',
     qr: '#F0F1F3',
   },
-  connectButton: { background: '#0098EA', foreground: '#FFFFFF' },
+  connectButton: { background: '#30A1F5', foreground: '#FFFFFF' },
 };
 
 function readInitialTheme() {

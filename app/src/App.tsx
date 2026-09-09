@@ -147,9 +147,7 @@ export default function App() {
       {/* ─── Topbar ─── */}
       <header className="flex items-center justify-between px-7 h-[60px] border-b sticky top-0 z-50 bg-background max-sm:px-4 max-sm:h-auto max-sm:flex-wrap max-sm:gap-2.5 max-sm:py-3">
         <div className="flex items-center gap-2.5 text-[17px] font-bold max-sm:text-[15px]">
-          <div className="w-8 h-8 rounded-[9px] bg-[#0098EA] flex items-center justify-center max-sm:w-7 max-sm:h-7 max-sm:rounded-[7px]">
-            <IconTonDiamond size={16} />
-          </div>
+          <IconTonDiamond size={32} theme={theme} />
           Nominator Pool
         </div>
         <div className="flex items-center gap-2.5">
@@ -173,9 +171,7 @@ export default function App() {
       {/* ─── Main content ─── */}
       <main className="flex-1 py-8 px-6 max-w-[1200px] mx-auto w-full flex flex-col items-center gap-6">
         <div className="flex flex-col items-center gap-2 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-[#0098EA] flex items-center justify-center">
-            <IconTonDiamond size={32} />
-          </div>
+          <IconTonDiamond size={64} theme={theme} />
           <h1 className="text-[22px] font-semibold tracking-tight">
             Nominator Pool
           </h1>
