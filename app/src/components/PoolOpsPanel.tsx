@@ -103,7 +103,11 @@ function PoolOpsTabs({
         {tab === 'update-validator-limits' && <UpdateValidatorLimitsPanel />}
         {tab === 'update-nominator-limits' && <UpdateNominatorLimitsPanel />}
         {tab === 'update-validator-limit' && <UpdateValidatorLimitPanel />}
-        {tab === 'recover-stake' && <RecoverStakePanel />}
+        {tab === 'recover-stake' && (
+          <RecoverStakePanel
+            onGoToUpdateVset={() => onTabChange('update-vset')}
+          />
+        )}
         {tab === 'update-vset' && <UpdateVsetPanel />}
         {tab === 'update-whitelist' && <UpdateWhitelistPanel />}
         {tab === 'evict-nominator' && <EvictNominatorPanel />}

@@ -3,7 +3,7 @@ import { fromNano } from '@ton/core';
 import { useQuery } from '@tanstack/react-query';
 
 import { Button } from '@/components/ui/button';
-import { Field } from '@/components/ui/form';
+import { Field, StatusBox } from '@/components/ui/form';
 import { usePoolOps } from './PoolOpsContext';
 import { useFieldErrors } from './useFieldErrors';
 import {
@@ -16,7 +16,13 @@ import {
 } from '@/lib/pool';
 import { isValidAddress } from '@/lib/ton';
 
-export function RecoverStakePanel() {
+export function RecoverStakePanel({
+  onGoToUpdateVset,
+}: {
+  // Jumps to the Update Vset tab — offered when the getter reports a pending
+  // (projected but uncommitted) vset rotation.
+  onGoToUpdateVset: () => void;
+}) {
   const { network, poolAddress, sender, busy, run } = usePoolOps();
   const { fieldErrors, setErr, clearErr, withClear, clearAllErr } =
     useFieldErrors();
@@ -158,12 +164,42 @@ export function RecoverStakePanel() {
           {recoverValidatorInfo &&
             recovery &&
             (() => {
+              // get_validator_info projects a vset rotation when the network
+              // vset has advanced past the pool's stored one. The projection
+              // is not committed on-chain — flag it and point the user at
+              // Update Vset rather than presenting it as already happened.
+              // Detected via rotationTime ≈ now (see computeRecoveryEligibility).
+              const rotationPending = recovery.rotationPending;
               if (!recovery.closest) {
                 return (
-                  <p>
-                    No usage record for the closest round (stake may already be
-                    recovered).
-                  </p>
+                  <>
+                    {rotationPending && (
+                      <StatusBox
+                        status="warn"
+                        message={
+                          <>
+                            <p className="font-semibold">
+                              Pending vset rotation
+                            </p>
+                            <p>
+                              The network validator set has rotated, but the
+                              pool hasn't advanced yet. The rotation data below
+                              is projected (not yet on-chain).
+                            </p>
+                            <div className="mt-1">
+                              <Button size="sm" onClick={onGoToUpdateVset}>
+                                Update vset
+                              </Button>
+                            </div>
+                          </>
+                        }
+                      />
+                    )}
+                    <p>
+                      No usage record for the closest round (stake may already
+                      be recovered).
+                    </p>
+                  </>
                 );
               }
               const closest = recovery.closest;
@@ -171,15 +207,38 @@ export function RecoverStakePanel() {
               const rotTime = Number(rot.rotationTime);
               return (
                 <>
+                  {rotationPending && (
+                    <StatusBox
+                      status="warn"
+                      message={
+                        <>
+                          <p className="font-semibold">Pending vset rotation</p>
+                          <p>
+                            The network validator set has rotated, but the
+                            pool's round is behind. The rotation count and time
+                            below are projected (what the pool would see after
+                            advancing) — they are not yet committed on-chain.
+                            Send Update Vset to advance the pool.
+                          </p>
+                          <div className="mt-1">
+                            <Button size="sm" onClick={onGoToUpdateVset}>
+                              Update vset
+                            </Button>
+                          </div>
+                        </>
+                      }
+                    />
+                  )}
                   <p>
                     closest round: {recovery.usePrev ? 'prev' : 'cur'} · ton
                     used: {fromNano(closest.usage.tonUsed)} GRAM
                   </p>
                   <p>
-                    rotation count: {rot.rotationCount.toString()} · rotation
-                    time:{' '}
+                    rotation count: {rot.rotationCount.toString()}
+                    {rotationPending ? ' (projected)' : ''} · rotation time:{' '}
                     {rotTime > 0
-                      ? new Date(rotTime * 1000).toLocaleString()
+                      ? new Date(rotTime * 1000).toLocaleString() +
+                        (rotationPending ? ' (projected)' : '')
                       : '—'}
                   </p>
                   <p
@@ -188,10 +247,14 @@ export function RecoverStakePanel() {
                     }
                   >
                     {recovery.eligible
-                      ? recovery.timeLeft > 0
-                        ? `eligible in ${Math.ceil(recovery.timeLeft / 60)} min`
+                      ? rotationPending
+                        ? 'would be eligible for recovery once vset is updated'
                         : 'eligible for recovery'
-                      : 'not yet eligible (needs 2 rotations)'}
+                      : rot.rotationCount < 2n
+                        ? 'not yet eligible (needs 2 rotations)'
+                        : recovery.timeLeft > 0
+                          ? `eligible in ${Math.ceil(recovery.timeLeft / 60)} min`
+                          : 'eligible for recovery'}
                   </p>
                 </>
               );

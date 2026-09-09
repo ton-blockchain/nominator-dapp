@@ -600,6 +600,19 @@ export async function getValidatorInfo(
 //   rotationCount < 2  → not eligible (round too early)
 //   rotationCount == 2 → eligible once now > rotationTime + heldFor + 60
 //   rotationCount > 2  → eligible (timestamp no longer relevant)
+//
+// get_validator_info runs rotateRound internally, which calls
+// RotationData.rotateVset on the per-usage record. When the network vset has
+// advanced past the pool's stored one, rotateVset *projects* the rotation:
+// it bumps rotationCount and sets rotationTime = blockchain.now() (the
+// getter's current block time). That projection is not persisted until a
+// message (Update Vset, RecoverStake, …) commits it. The simplest signal that
+// the rotation was just projected (vs. committed in an earlier block) is
+// rotationTime being approximately `now` — a committed rotation's
+// rotationTime is the block time of the block that committed it, which is
+// already in the past by the time the dApp reads it.
+const ROTATION_NOW_THRESHOLD_SECONDS = 10;
+
 export interface RecoveryEligibility {
   // The usage record for the round the contract would recover from, or null if
   // the validator has no record there (e.g. stake already recovered).
@@ -612,6 +625,11 @@ export interface RecoveryEligibility {
   eligibleAt: number;
   // Seconds until eligibleAt (negative when already past it), else 0.
   timeLeft: number;
+  // True when the per-usage rotation appears projected by the getter but not
+  // yet committed on-chain (rotationTime ≈ now). When true, the rotation
+  // count/time are post-projection and the pool's round can be advanced with
+  // Update Vset.
+  rotationPending: boolean;
 }
 
 export function computeRecoveryEligibility(
@@ -633,6 +651,7 @@ export function computeRecoveryEligibility(
       eligible: false,
       eligibleAt: 0,
       timeLeft: 0,
+      rotationPending: false,
     };
   }
 
@@ -643,7 +662,16 @@ export function computeRecoveryEligibility(
   const eligible =
     rot.rotationCount >= 2n && (rot.rotationCount > 2n || now > eligibleAt);
   const timeLeft = eligibleAt > 0 ? eligibleAt - now : 0;
-  return { closest, usePrev, eligible, eligibleAt, timeLeft };
+  const rotationPending =
+    rotTime > 0 && Math.abs(now - rotTime) <= ROTATION_NOW_THRESHOLD_SECONDS;
+  return {
+    closest,
+    usePrev,
+    eligible,
+    eligibleAt,
+    timeLeft,
+    rotationPending,
+  };
 }
 
 export async function getLimitsPerValidator(
