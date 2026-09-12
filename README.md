@@ -200,7 +200,7 @@ In unprofitable rounds, the validator doesn't get the bonus back, so its expense
 5. **Owner share** — set the percentage of rewards the pool owner receives.
    The default is `50.00`%. You can switch to raw share mode if needed. The
    info line below shows the resulting raw share value.
-6. **Max nominators (0..1023)** — set to `1023` (or lower if you want a
+6. **Max nominators (0..512)** — set to `512` (or lower if you want a
    smaller pool).
 7. **Max GRAM / validator** — set the maximum GRAM each validator can stake
    (e.g. `10000000` for 10 million GRAM).

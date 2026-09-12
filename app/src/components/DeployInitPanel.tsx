@@ -82,7 +82,7 @@ export function DeployInitPanel({
   const [maxTonPerValidator, setMaxTonPerValidator] = useState('10000000');
   const [minTonPerValidator, setMinTonPerValidator] = useState('300000');
   const [refundBonus, setRefundBonus] = useState('3');
-  const [maxNominators, setMaxNominators] = useState('1023');
+  const [maxNominators, setMaxNominators] = useState('512');
   const [minStake, setMinStake] = useState('1000');
   const [minWithdrawableRewards, setMinWithdrawableRewards] = useState('1');
   // Nominator whitelist applied at init — the contract accepts it via
@@ -466,7 +466,7 @@ export function DeployInitPanel({
             onClearError={() => clearErr('ownerShare')}
           />
           <Field
-            label="Max nominators (0..1023)"
+            label="Max nominators (0..512)"
             type="number"
             value={maxNominators}
             onChange={withClear(setMaxNominators, 'maxNominators')}

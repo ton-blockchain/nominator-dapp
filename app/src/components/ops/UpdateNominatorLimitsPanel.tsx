@@ -20,7 +20,7 @@ export function UpdateNominatorLimitsPanel() {
     useFieldErrors();
 
   // nominator limits
-  const [maxNominators, setMaxNominators] = useState('1023');
+  const [maxNominators, setMaxNominators] = useState('512');
   const [minStake, setMinStake] = useState('1000');
   const [msgValue, setMsgValue] = useState('1');
 
@@ -64,8 +64,8 @@ export function UpdateNominatorLimitsPanel() {
       clearErr,
     );
     if (mn === null) return;
-    if (mn < 0 || mn > 1023) {
-      setErr('maxNominators', 'Must be in 0..1023.');
+    if (mn < 0 || mn > 512) {
+      setErr('maxNominators', 'Must be in 0..512.');
       return;
     }
     const stake = validateGramInput(minStake, 'minStake', setErr, clearErr);
@@ -88,7 +88,7 @@ export function UpdateNominatorLimitsPanel() {
       <h2 className="text-[15px] font-semibold">Update nominator limits</h2>
       <div className="grid grid-cols-2 gap-3 items-start">
         <Field
-          label="Max nominators (0..1023)"
+          label="Max nominators (0..512)"
           type="number"
           value={maxNominators}
           onChange={withClear(setMaxNominators, 'maxNominators')}

@@ -407,10 +407,10 @@ export function validateInitParams(
         'Max GRAM per validator must be greater than min GRAM per validator.',
     };
   }
-  if (p.maxNominators < 0 || p.maxNominators > 1023) {
+  if (p.maxNominators < 0 || p.maxNominators > 512) {
     return {
       field: 'maxNominators',
-      message: 'Max nominators must be in 0..1023.',
+      message: 'Max nominators must be in 0..512.',
     };
   }
   // Address.parse throws on invalid input; guard with a try/catch so this
@@ -945,7 +945,7 @@ export async function updateValidatorLimits(
 
 export interface UpdateNominatorLimitsParams {
   poolAddress: string;
-  maxNominators: number; // 0..1023
+  maxNominators: number; // 0..512
   minStake: bigint;
   value: bigint;
   queryId?: bigint;
