@@ -1,9 +1,6 @@
 name: Deploy Pages
 
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_dispatch:
 
 concurrency:
