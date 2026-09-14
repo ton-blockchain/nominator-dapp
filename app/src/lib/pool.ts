@@ -12,7 +12,7 @@ import { TonClient } from '@ton/ton';
 import type { SendTransactionRequest } from '@tonconnect/ui';
 
 import {
-  NominatorPool,
+  Pool as NominatorPool,
   NominatorsSettings,
   GlobalValidatorsLimit,
   GlobalNominatorsLimit,
